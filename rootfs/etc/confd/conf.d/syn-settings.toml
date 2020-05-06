@@ -1,0 +1,7 @@
+[template]
+src = "syn-settings.xml.tpl"
+dest = "/opt/crayfish/Houdini/syn-settings.xml"
+mode = "0644"
+keys = [
+    "/houdini/jwt/admin/token",
+]

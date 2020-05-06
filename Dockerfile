@@ -13,7 +13,13 @@ RUN GEN_DEP_PACKS="software-properties-common \
     apt-get install --no-install-recommends -y $GEN_DEP_PACKS && \
     ## Cleanup phase.
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    CONFD_VERSION="0.16.0" && \
+    CONFD_SHA256="255d2559f3824dd64df059bdc533fd6b697c070db603c76aaf8d1d5e6b0cc334" && \
+    curl -sSfL -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VERSION}/confd-${CONFD_VERSION}-linux-amd64 && \
+    sha256sum /usr/local/bin/confd | cut -f1 -d' ' | xargs test ${CONFD_SHA256} == && \
+    chmod +x /usr/local/bin/confd
+
 ## Imagick 
 # @see: https://launchpad.net/~lyrasis/+archive/ubuntu/imagemagick-jp2 
 
@@ -29,16 +35,14 @@ RUN echo deb $IMAGEMAGICK_REPO bionic main >> /etc/apt/sources.list && \
     apt-get install --no-install-recommends -y $IMAGEMAGICK_PACKS && \
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    sed -i "/<policymap>/a \ \ <policy domain=\"coder\" rights=\"read|write\" pattern=\"PDF\" \/>/" /etc/ImageMagick-6/policy.xml
 
 COPY rootfs /
 
 # Composer & Houdini
 # @see: Composer https://github.com/composer/getcomposer.org/commits/master (replace hash below with most recent hash)
 # @see: Houdini https://github.com/Islandora/Crayfish
-
-ARG HOUDINI_JWT_ADMIN_TOKEN
-ARG HOUDINI_LOG_LEVEL
 
 ENV PATH=$PATH:$HOME/.composer/vendor/bin \
     COMPOSER_ALLOW_SUPERUSER=1 \
@@ -54,10 +58,11 @@ RUN curl https://raw.githubusercontent.com/composer/getcomposer.org/$COMPOSER_HA
     chown -Rv www-data:www-data /opt/crayfish && \
     mkdir /var/log/islandora && \
     chown www-data:www-data /var/log/islandora && \
-    envsubst < /opt/templates/syn-settings.xml.template > /opt/crayfish/Houdini/syn-settings.xml && \
-    envsubst < /opt/templates/monolog.yaml.template > /opt/crayfish/Houdini/config/packages/monolog.yaml && \
-    cp /opt/config/services.yaml /opt/crayfish/Houdini/config/services.yaml && \
-    cp /opt/config/crayfish_commons.yaml /opt/crayfish/Houdini/config/packages/crayfish_commons.yaml && \
+    chmod a+x /usr/local/bin/islandora-php-entrypoint && \
+    #envsubst < /opt/templates/syn-settings.xml.template > /opt/crayfish/Houdini/syn-settings.xml && \
+    #envsubst < /opt/templates/monolog.yaml.template > /opt/crayfish/Houdini/config/packages/monolog.yaml && \
+    #cp /opt/config/services.yaml /opt/crayfish/Houdini/config/services.yaml && \
+    #cp /opt/config/crayfish_commons.yaml /opt/crayfish/Houdini/config/packages/crayfish_commons.yaml && \
     a2dissite 000-default && \
     #echo "ServerName localhost" | tee /etc/apache2/conf-available/servername.conf && \
     #a2enconf servername && \
@@ -76,7 +81,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
 
-ENTRYPOINT ["docker-php-entrypoint"]
+ENTRYPOINT ["islandora-php-entrypoint"]
 
 STOPSIGNAL SIGWINCH
 
