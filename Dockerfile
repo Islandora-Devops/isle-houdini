@@ -59,10 +59,6 @@ RUN curl https://raw.githubusercontent.com/composer/getcomposer.org/$COMPOSER_HA
     mkdir /var/log/islandora && \
     chown www-data:www-data /var/log/islandora && \
     chmod a+x /usr/local/bin/islandora-php-entrypoint && \
-    #envsubst < /opt/templates/syn-settings.xml.template > /opt/crayfish/Houdini/syn-settings.xml && \
-    #envsubst < /opt/templates/monolog.yaml.template > /opt/crayfish/Houdini/config/packages/monolog.yaml && \
-    #cp /opt/config/services.yaml /opt/crayfish/Houdini/config/services.yaml && \
-    #cp /opt/config/crayfish_commons.yaml /opt/crayfish/Houdini/config/packages/crayfish_commons.yaml && \
     a2dissite 000-default && \
     #echo "ServerName localhost" | tee /etc/apache2/conf-available/servername.conf && \
     #a2enconf servername && \
