@@ -1,24 +1,4 @@
-FROM php:7.4.3-apache
-# Apache https://github.com/docker-library/php/blob/04c0ee7a0277e0ebc3fcdc46620cf6c1f6273100/7.4/buster/apache/Dockerfile
-
-## General Dependencies
-RUN GEN_DEP_PACKS="software-properties-common \
-    gnupg \
-    zip \
-    unzip \
-    git \
-    gettext-base" && \
-    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-    apt-get update && \
-    apt-get install --no-install-recommends -y $GEN_DEP_PACKS && \
-    ## Cleanup phase.
-    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    CONFD_VERSION="0.16.0" && \
-    CONFD_SHA256="255d2559f3824dd64df059bdc533fd6b697c070db603c76aaf8d1d5e6b0cc334" && \
-    curl -sSfL -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VERSION}/confd-${CONFD_VERSION}-linux-amd64 && \
-    sha256sum /usr/local/bin/confd | cut -f1 -d' ' | xargs test ${CONFD_SHA256} == && \
-    chmod +x /usr/local/bin/confd
+FROM isle-crayfish-base:latest
 
 ## Imagick 
 # @see: https://launchpad.net/~lyrasis/+archive/ubuntu/imagemagick-jp2 
@@ -58,7 +38,6 @@ RUN curl https://raw.githubusercontent.com/composer/getcomposer.org/$COMPOSER_HA
     chown -Rv www-data:www-data /opt/crayfish && \
     mkdir /var/log/islandora && \
     chown www-data:www-data /var/log/islandora && \
-    chmod a+x /usr/local/bin/islandora-php-entrypoint && \
     a2dissite 000-default && \
     #echo "ServerName localhost" | tee /etc/apache2/conf-available/servername.conf && \
     #a2enconf servername && \
@@ -77,11 +56,4 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
 
-ENTRYPOINT ["islandora-php-entrypoint"]
-
-STOPSIGNAL SIGWINCH
-
 WORKDIR /opt/crayfish/Houdini/
-
-EXPOSE 8000
-CMD ["apache2-foreground"]
