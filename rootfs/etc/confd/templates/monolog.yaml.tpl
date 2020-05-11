@@ -5,5 +5,5 @@ monolog:
     houdini:
       type: rotating_file
       path: /var/log/islandora/houdini.log
-      level: $HOUDINI_LOG_LEVEL
+      level: {{getv "/houdini/log/level"}}
       max_files: 1

@@ -1,0 +1,4 @@
+[template]
+src = "services.yaml"
+dest = "/opt/crayfish/Houdini/config/services.yaml"
+mode = "0644"

@@ -1,0 +1,7 @@
+[template]
+src = "monolog.yaml.tpl"
+dest = "/opt/crayfish/Houdini/config/packages/monolog.yaml"
+mode = "0644"
+keys = [
+    "/houdini/log/level",
+]
