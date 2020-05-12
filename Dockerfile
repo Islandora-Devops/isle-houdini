@@ -1,4 +1,4 @@
-FROM isle-crayfish-base:latest
+FROM islandora/isle-crayfish-base:latest
 
 ## Imagick 
 # @see: https://launchpad.net/~lyrasis/+archive/ubuntu/imagemagick-jp2 
